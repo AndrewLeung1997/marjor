@@ -30,6 +30,14 @@ body,
   height: 100%;
 }
 
+html:has(.app--game),
+html:has(.app--game) body {
+  overflow: hidden;
+  overscroll-behavior: none;
+  position: fixed;
+  width: 100%;
+}
+
 body {
   font-family: var(--font-sans);
   background:
@@ -63,7 +71,9 @@ button {
   margin: 0 auto;
   padding: 0.5rem 0.75rem max(0.75rem, env(safe-area-inset-bottom));
   padding-top: max(0.5rem, env(safe-area-inset-top));
-  min-height: 100dvh;
+  height: 100svh;
+  max-height: 100svh;
+  min-height: 100svh;
   justify-content: flex-start;
   overflow: hidden;
   overscroll-behavior: none;
@@ -343,6 +353,7 @@ button {
 /* Game HUD */
 .game-hud {
   width: 100%;
+  flex-shrink: 0;
   background: var(--bg-panel);
   border: 1px solid rgba(212, 168, 83, 0.25);
   border-radius: var(--radius);
@@ -377,9 +388,9 @@ button {
 }
 
 .game-hud__stats {
-  display: flex;
-  justify-content: space-around;
-  gap: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.35rem;
   margin-bottom: 0.65rem;
 }
 
@@ -399,6 +410,7 @@ button {
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--gold-light);
+  font-variant-numeric: tabular-nums;
 }
 
 .stat__value--warn {
@@ -408,6 +420,11 @@ button {
 
 .stat--combo .stat__value {
   color: #f39c12;
+}
+
+.stat--combo:not(.stat--combo-active) .stat__value {
+  color: var(--text-muted);
+  opacity: 0.45;
 }
 
 @keyframes pulse {
@@ -473,9 +490,14 @@ button {
 .game-hud__phase {
   text-align: center;
   font-size: 0.85rem;
-  color: var(--gold);
+  color: transparent;
   margin-bottom: 0.15rem;
   min-height: 1.2em;
+  line-height: 1.2em;
+}
+
+.game-hud__phase--active {
+  color: var(--gold);
 }
 
 /* Game Board */
@@ -804,7 +826,7 @@ button {
 
   .game-hud__stats {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 0.25rem;
     margin-bottom: 0.45rem;
   }

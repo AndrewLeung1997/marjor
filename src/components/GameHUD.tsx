@@ -75,12 +75,10 @@ export function GameHUD({
             {bombCount > 0 ? `${bombCount} · ${nearestBomb}s` : `— · ${movesUntilSpawn}`}
           </span>
         </div>
-        {combo > 0 && (
-          <div className="stat stat--combo">
-            <span className="stat__label">連擊</span>
-            <span className="stat__value">×{combo}</span>
-          </div>
-        )}
+        <div className={`stat stat--combo ${combo > 0 ? 'stat--combo-active' : ''}`}>
+          <span className="stat__label">連擊</span>
+          <span className="stat__value">{combo > 0 ? `×${combo}` : '—'}</span>
+        </div>
       </div>
 
       <div className="progress-bar">
@@ -98,7 +96,12 @@ export function GameHUD({
         </div>
       </div>
 
-      {phaseLabel && <p className="game-hud__phase">{phaseLabel}</p>}
+      <p
+        className={`game-hud__phase ${phaseLabel ? 'game-hud__phase--active' : ''}`}
+        aria-live="polite"
+      >
+        {phaseLabel || '\u00A0'}
+      </p>
 
       <p className="game-hud__hint">
         拖曳牌面交換 · 三消帶炸彈的牌可拆除 · 倒數歸零即輸
