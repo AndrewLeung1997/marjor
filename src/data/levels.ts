@@ -7,21 +7,21 @@ export const DIFFICULTY_LABELS: Record<Difficulty, string> = {
 };
 
 export const LEVELS: LevelConfig[] = [
-  { id: 1, difficulty: 'easy', name: '三色入門', gridSize: 7, tileTypeCount: 3, moves: 32, timeLimit: 180, targetScore: 700, stars: [700, 1000, 1400] },
-  { id: 2, difficulty: 'easy', name: '紅綠黃', gridSize: 7, tileTypeCount: 3, moves: 30, timeLimit: 170, targetScore: 850, stars: [850, 1200, 1600] },
-  { id: 3, difficulty: 'easy', name: '四色繽紛', gridSize: 8, tileTypeCount: 4, moves: 30, timeLimit: 160, targetScore: 1000, stars: [1000, 1400, 1800] },
-  { id: 4, difficulty: 'easy', name: '色彩節奏', gridSize: 8, tileTypeCount: 4, moves: 28, timeLimit: 150, targetScore: 1200, stars: [1200, 1600, 2000] },
-  { id: 5, difficulty: 'easy', name: '五色調和', gridSize: 8, tileTypeCount: 5, moves: 28, timeLimit: 140, targetScore: 1400, stars: [1400, 1800, 2200] },
-  { id: 6, difficulty: 'medium', name: '進階調色', gridSize: 8, tileTypeCount: 5, moves: 26, timeLimit: 130, targetScore: 1600, stars: [1600, 2100, 2600] },
-  { id: 7, difficulty: 'medium', name: '六色挑戰', gridSize: 8, tileTypeCount: 6, moves: 26, timeLimit: 120, targetScore: 1800, stars: [1800, 2300, 2800] },
-  { id: 8, difficulty: 'medium', name: '色塊風暴', gridSize: 8, tileTypeCount: 6, moves: 24, timeLimit: 115, targetScore: 2000, stars: [2000, 2500, 3100] },
-  { id: 9, difficulty: 'medium', name: '七色迷陣', gridSize: 9, tileTypeCount: 7, moves: 24, timeLimit: 110, targetScore: 2200, stars: [2200, 2800, 3500] },
-  { id: 10, difficulty: 'medium', name: '全色交響', gridSize: 9, tileTypeCount: 7, moves: 22, timeLimit: 100, targetScore: 2400, stars: [2400, 3100, 3800] },
-  { id: 11, difficulty: 'hard', name: '七色極限', gridSize: 9, tileTypeCount: 7, moves: 22, timeLimit: 95, targetScore: 2600, stars: [2600, 3400, 4200] },
-  { id: 12, difficulty: 'hard', name: '深淺之間', gridSize: 9, tileTypeCount: 7, moves: 20, timeLimit: 90, targetScore: 2800, stars: [2800, 3600, 4500] },
-  { id: 13, difficulty: 'hard', name: '黑白試煉', gridSize: 9, tileTypeCount: 7, moves: 20, timeLimit: 85, targetScore: 3000, stars: [3000, 3900, 4800] },
-  { id: 14, difficulty: 'hard', name: '全譜對決', gridSize: 9, tileTypeCount: 7, moves: 18, timeLimit: 80, targetScore: 3200, stars: [3200, 4200, 5200] },
-  { id: 15, difficulty: 'hard', name: '色彩大師', gridSize: 9, tileTypeCount: 7, moves: 18, timeLimit: 75, targetScore: 3400, stars: [3400, 4500, 5600] },
+  { id: 1, difficulty: 'easy', name: '三色入門', gridSize: 7, tileTypeCount: 3, moves: 45, timeLimit: 300, targetScore: 1300, stars: [1300, 1900, 2500] },
+  { id: 2, difficulty: 'easy', name: '紅綠黃', gridSize: 7, tileTypeCount: 3, moves: 42, timeLimit: 290, targetScore: 1600, stars: [1600, 2200, 2800] },
+  { id: 3, difficulty: 'easy', name: '四色繽紛', gridSize: 8, tileTypeCount: 4, moves: 42, timeLimit: 280, targetScore: 1900, stars: [1900, 2600, 3300] },
+  { id: 4, difficulty: 'easy', name: '色彩節奏', gridSize: 8, tileTypeCount: 4, moves: 40, timeLimit: 270, targetScore: 2200, stars: [2200, 3000, 3800] },
+  { id: 5, difficulty: 'easy', name: '五色調和', gridSize: 8, tileTypeCount: 5, moves: 40, timeLimit: 260, targetScore: 2600, stars: [2600, 3400, 4200] },
+  { id: 6, difficulty: 'medium', name: '進階調色', gridSize: 8, tileTypeCount: 5, moves: 38, timeLimit: 250, targetScore: 3000, stars: [3000, 3900, 4800] },
+  { id: 7, difficulty: 'medium', name: '六色挑戰', gridSize: 8, tileTypeCount: 6, moves: 36, timeLimit: 240, targetScore: 3400, stars: [3400, 4400, 5400] },
+  { id: 8, difficulty: 'medium', name: '色塊風暴', gridSize: 8, tileTypeCount: 6, moves: 35, timeLimit: 230, targetScore: 3800, stars: [3800, 4900, 6000] },
+  { id: 9, difficulty: 'medium', name: '七色迷陣', gridSize: 9, tileTypeCount: 7, moves: 34, timeLimit: 220, targetScore: 4200, stars: [4200, 5400, 6600] },
+  { id: 10, difficulty: 'medium', name: '全色交響', gridSize: 9, tileTypeCount: 7, moves: 32, timeLimit: 210, targetScore: 4600, stars: [4600, 5900, 7200] },
+  { id: 11, difficulty: 'hard', name: '七色極限', gridSize: 9, tileTypeCount: 7, moves: 32, timeLimit: 200, targetScore: 5000, stars: [5000, 6400, 7800] },
+  { id: 12, difficulty: 'hard', name: '深淺之間', gridSize: 9, tileTypeCount: 7, moves: 30, timeLimit: 190, targetScore: 5400, stars: [5400, 6900, 8400] },
+  { id: 13, difficulty: 'hard', name: '黑白試煉', gridSize: 9, tileTypeCount: 7, moves: 30, timeLimit: 180, targetScore: 5800, stars: [5800, 7400, 9000] },
+  { id: 14, difficulty: 'hard', name: '全譜對決', gridSize: 9, tileTypeCount: 7, moves: 28, timeLimit: 170, targetScore: 6200, stars: [6200, 7900, 9600] },
+  { id: 15, difficulty: 'hard', name: '色彩大師', gridSize: 9, tileTypeCount: 7, moves: 28, timeLimit: 165, targetScore: 6600, stars: [6600, 8400, 10200] },
 ];
 
 export function getLevelsByDifficulty(difficulty: Difficulty): LevelConfig[] {

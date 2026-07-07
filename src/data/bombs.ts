@@ -16,21 +16,21 @@ export interface BombDifficultyConfig {
 export const BOMB_CONFIG: Record<Difficulty, BombDifficultyConfig> = {
   easy: {
     maxBombs: 1,
-    spawnEveryMoves: 6,
+    spawnEveryMoves: 9,
     tiers: ['normal'],
-    countdown: { normal: 20, fast: 12, critical: 7 },
+    countdown: { normal: 28, fast: 18, critical: 12 },
   },
   medium: {
     maxBombs: 2,
-    spawnEveryMoves: 5,
+    spawnEveryMoves: 8,
     tiers: ['normal', 'fast'],
-    countdown: { normal: 16, fast: 11, critical: 7 },
+    countdown: { normal: 24, fast: 16, critical: 11 },
   },
   hard: {
-    maxBombs: 3,
-    spawnEveryMoves: 4,
+    maxBombs: 2,
+    spawnEveryMoves: 7,
     tiers: ['fast', 'critical'],
-    countdown: { normal: 14, fast: 9, critical: 6 },
+    countdown: { normal: 20, fast: 14, critical: 10 },
   },
 };
 
