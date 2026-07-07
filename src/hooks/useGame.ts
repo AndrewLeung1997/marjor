@@ -8,11 +8,11 @@ import {
   calcMatchScore,
   createBoard,
   createEmptyBombs,
+  ensurePlayable,
   findMatchGroups,
-  refillBoard,
+  refillBoardSafe,
   removeAt,
   resolveMatchGroups,
-  shuffleBoard,
   spawnBomb,
   swapBombs,
   swapTiles,
@@ -113,7 +113,7 @@ export function useGame(levelId: number, onWin: (score: number) => void) {
       setState((s) => ({ ...s, board: currentBoard, bombs: currentBombs }));
       await delay(ANIM_FALL);
 
-      currentBoard = refillBoard(currentBoard, tilePool);
+      currentBoard = refillBoardSafe(currentBoard, tilePool);
       setState((s) => ({ ...s, board: currentBoard }));
       await delay(ANIM_FALL);
 
@@ -194,7 +194,7 @@ export function useGame(levelId: number, onWin: (score: number) => void) {
 
       setState((s) => ({
         ...s,
-        board: currentBoard,
+        board: ensurePlayable(currentBoard, tilePool),
         bombs: currentBombs,
         score: currentScore,
         combo: 0,
@@ -283,23 +283,6 @@ export function useGame(levelId: number, onWin: (score: number) => void) {
     [state, attemptSwap]
   );
 
-  const shuffle = useCallback(async () => {
-    if (processingRef.current || state.phase !== 'idle') return;
-    processingRef.current = true;
-    const shuffled = shuffleBoard(state.board, level.tileTypeCount, level.id);
-    const tilePool = getTilePool(level.tileTypeCount, level.id);
-    setState((s) => ({
-      ...s,
-      board: shuffled,
-      bombs: createEmptyBombs(shuffled.length),
-      tilePool,
-      movesUntilSpawn: bombConfig.spawnEveryMoves,
-      selected: null,
-    }));
-    await delay(300);
-    processingRef.current = false;
-  }, [state.board, state.phase, level, bombConfig.spawnEveryMoves]);
-
   return {
     level,
     state,
@@ -307,7 +290,6 @@ export function useGame(levelId: number, onWin: (score: number) => void) {
     handleTileClick,
     attemptSwap,
     reset,
-    shuffle,
   };
 }
 

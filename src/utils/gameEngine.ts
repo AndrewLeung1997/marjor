@@ -180,6 +180,41 @@ export function refillBoard(board: Board, tilePool: TileTypeId[]): Board {
   return next;
 }
 
+/** 無可行步時自動重排（不消耗玩家操作） */
+export function ensurePlayable(board: Board, tilePool: TileTypeId[]): Board {
+  if (findMatches(board).length === 0 && hasValidMoves(board, tilePool)) {
+    return board;
+  }
+
+  const size = board.length;
+  let next = cloneBoard(board);
+
+  for (let attempt = 0; attempt < 80; attempt++) {
+    const types = next.flat().filter((t): t is TileTypeId => t !== null);
+    for (let i = types.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [types[i], types[j]] = [types[j], types[i]];
+    }
+
+    let idx = 0;
+    for (let row = 0; row < size; row++) {
+      for (let col = 0; col < size; col++) {
+        if (next[row][col]) next[row][col] = types[idx++];
+      }
+    }
+
+    if (findMatches(next).length === 0 && hasValidMoves(next, tilePool)) {
+      return next;
+    }
+  }
+
+  return createBoard(size, tilePool.length, 1);
+}
+
+export function refillBoardSafe(board: Board, tilePool: TileTypeId[]): Board {
+  return ensurePlayable(refillBoard(board, tilePool), tilePool);
+}
+
 export function calcMatchScore(matchCount: number, combo: number): number {
   const base = matchCount >= 5 ? 300 : matchCount === 4 ? 200 : 100;
   const multiplier = 1 + combo * 0.5;

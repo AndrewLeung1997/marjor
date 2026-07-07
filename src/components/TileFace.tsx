@@ -7,7 +7,7 @@ interface TileFaceProps {
   className?: string;
 }
 
-/** 彩色方塊 */
+/** 立體彩色方塊 */
 export function TileFace({ type, className = '' }: TileFaceProps) {
   const def = TILE_MAP[type];
 
@@ -19,12 +19,17 @@ export function TileFace({ type, className = '' }: TileFaceProps) {
           '--tile-color': def.color,
           '--tile-bg': def.bg,
           '--tile-highlight': def.highlight,
+          '--tile-border': def.border,
+          '--tile-text': def.text,
         } as CSSProperties
       }
       aria-hidden="true"
     >
-      <div className="color-tile__body" />
-      <div className="color-tile__shine" />
+      <div className="color-tile__base" />
+      <div className="color-tile__body">
+        <span className="color-tile__label">{def.label}</span>
+        <div className="color-tile__shine" />
+      </div>
     </div>
   );
 }

@@ -24,7 +24,7 @@ export function GameScreen({ levelId, onWin, onBack, onNextLevel }: GameScreenPr
     setShowResult(true);
   };
 
-  const { level, state, handleTileClick, attemptSwap, reset, shuffle } = useGame(levelId, handleWin);
+  const { level, state, handleTileClick, attemptSwap, reset } = useGame(levelId, handleWin);
 
   useEffect(() => {
     if (state.phase === 'lost' && !showResult) {
@@ -46,7 +46,6 @@ export function GameScreen({ levelId, onWin, onBack, onNextLevel }: GameScreenPr
         movesUntilSpawn={state.movesUntilSpawn}
         phaseLabel={getPhaseLabel(state.phase)}
         onBack={onBack}
-        onShuffle={shuffle}
         onRestart={() => {
           reset();
           setShowResult(false);

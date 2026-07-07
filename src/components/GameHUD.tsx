@@ -13,7 +13,6 @@ interface GameHUDProps {
   movesUntilSpawn: number;
   phaseLabel: string;
   onBack: () => void;
-  onShuffle: () => void;
   onRestart: () => void;
 }
 
@@ -27,7 +26,6 @@ export function GameHUD({
   movesUntilSpawn,
   phaseLabel,
   onBack,
-  onShuffle,
   onRestart,
 }: GameHUDProps) {
   const progress = Math.min(100, (score / level.targetScore) * 100);
@@ -104,12 +102,8 @@ export function GameHUD({
       </p>
 
       <p className="game-hud__hint">
-        拖曳色塊交換 · 三消帶炸彈的可拆除 · 倒數歸零即輸
+        拖曳色塊交換 · 三消拆除炸彈 · 無路可走時自動重排
       </p>
-
-      <button type="button" className="btn btn--secondary btn--shuffle" onClick={onShuffle}>
-        洗牌
-      </button>
     </div>
   );
 }

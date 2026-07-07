@@ -1,12 +1,10 @@
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
-/** 九色順序：隨難度逐步解鎖 */
+/** 七色順序：紅綠黃藍紫黑白，隨難度逐步解鎖 */
 export type TileTypeId =
   | 'red'
-  | 'orange'
-  | 'yellow'
   | 'green'
-  | 'cyan'
+  | 'yellow'
   | 'blue'
   | 'purple'
   | 'black'
@@ -29,6 +27,8 @@ export interface TileDef {
   color: string;
   bg: string;
   highlight: string;
+  border: string;
+  text: string;
 }
 
 export interface LevelConfig {

@@ -33,12 +33,12 @@ export default function App() {
           <div className="menu__hero">
             <div className="menu__tiles" aria-hidden="true">
               <div className="menu-tile"><TileFaceLarge type="red" /></div>
+              <div className="menu-tile"><TileFaceLarge type="green" /></div>
               <div className="menu-tile"><TileFaceLarge type="yellow" /></div>
-              <div className="menu-tile"><TileFaceLarge type="cyan" /></div>
-              <div className="menu-tile"><TileFaceLarge type="purple" /></div>
+              <div className="menu-tile"><TileFaceLarge type="blue" /></div>
             </div>
             <h1 className="menu__title">色彩消消樂</h1>
-            <p className="menu__subtitle">九色三消 · 難度越高顏色越多</p>
+            <p className="menu__subtitle">七色三消 · 紅綠黃藍紫黑白</p>
           </div>
 
           <div className="menu__stats">
@@ -62,7 +62,6 @@ export default function App() {
 
           <footer className="menu__footer">
             <p>拖曳交換色塊 · 限時三消 · 倒數炸彈</p>
-            <p>簡單 3–5 色 · 中等 5–7 色 · 困難 8–9 色</p>
           </footer>
         </div>
       </div>
