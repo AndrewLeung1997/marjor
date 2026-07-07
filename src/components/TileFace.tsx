@@ -7,7 +7,7 @@ interface TileFaceProps {
   className?: string;
 }
 
-/** 立體正方形磚塊：顶面 + 右側 + 前面 */
+/** 正方形立體磚塊 */
 export function TileFace({ type, className = '' }: TileFaceProps) {
   const def = TILE_MAP[type];
 
@@ -23,11 +23,7 @@ export function TileFace({ type, className = '' }: TileFaceProps) {
         } as CSSProperties
       }
       aria-hidden="true"
-    >
-      <div className="color-tile__top" />
-      <div className="color-tile__edge color-tile__edge--right" />
-      <div className="color-tile__edge color-tile__edge--bottom" />
-    </div>
+    />
   );
 }
 
