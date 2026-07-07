@@ -23,7 +23,7 @@ import { getTilePool } from '../data/tiles';
 import type { GamePhase, GameState, LevelConfig, LoseReason, Position } from '../types';
 
 const ANIM_SWAP = 200;
-const ANIM_MATCH = 350;
+const ANIM_MATCH = 300;
 const ANIM_FALL = 300;
 
 function initState(level: LevelConfig): GameState {

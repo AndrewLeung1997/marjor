@@ -497,6 +497,7 @@ button {
   user-select: none;
   -webkit-user-select: none;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 /* Tiles — 香港麻雀牌 */
@@ -612,7 +613,8 @@ button {
 }
 
 .tile--matched .tile__motion {
-  animation: match-pop 0.35s ease forwards;
+  animation: match-fade 0.3s ease forwards;
+  pointer-events: none;
 }
 
 /* 炸彈牌 */
@@ -666,13 +668,12 @@ button {
 }
 
 .tile--bomb.tile--matched .tile__motion {
-  animation: bomb-pop 0.4s ease forwards;
+  animation: match-fade 0.3s ease forwards;
 }
 
-@keyframes bomb-pop {
-  0% { transform: scale(1); opacity: 1; filter: brightness(1); }
-  40% { transform: scale(1.2); opacity: 1; filter: brightness(1.4); }
-  100% { transform: scale(0); opacity: 0; filter: brightness(2); }
+@keyframes match-fade {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 .tile--empty {
@@ -680,12 +681,6 @@ button {
   border: none;
   box-shadow: none;
   pointer-events: none;
-}
-
-@keyframes match-pop {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.15); opacity: 0.85; }
-  100% { transform: scale(0); opacity: 0; }
 }
 
 /* Result Modal */
