@@ -10,7 +10,7 @@ import {
   createEmptyBombs,
   ensurePlayable,
   findMatchGroups,
-  refillBoardSafe,
+  refillBoard,
   removeAt,
   resolveMatchGroups,
   spawnBomb,
@@ -113,7 +113,7 @@ export function useGame(levelId: number, onWin: (score: number) => void) {
       setState((s) => ({ ...s, board: currentBoard, bombs: currentBombs }));
       await delay(ANIM_FALL);
 
-      currentBoard = refillBoardSafe(currentBoard, tilePool);
+      currentBoard = refillBoard(currentBoard, tilePool);
       setState((s) => ({ ...s, board: currentBoard }));
       await delay(ANIM_FALL);
 
@@ -192,9 +192,11 @@ export function useGame(levelId: number, onWin: (score: number) => void) {
         return;
       }
 
+      const finalBoard = ensurePlayable(currentBoard, tilePool);
+
       setState((s) => ({
         ...s,
-        board: ensurePlayable(currentBoard, tilePool),
+        board: finalBoard,
         bombs: currentBombs,
         score: currentScore,
         combo: 0,

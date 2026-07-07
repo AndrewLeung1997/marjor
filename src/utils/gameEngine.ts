@@ -180,9 +180,14 @@ export function refillBoard(board: Board, tilePool: TileTypeId[]): Board {
   return next;
 }
 
-/** 無可行步時自動重排（不消耗玩家操作） */
+/** 棋盤是否卡住：無現成三消、也無可交換步 */
+export function isBoardStuck(board: Board, tilePool: TileTypeId[]): boolean {
+  return findMatches(board).length === 0 && !hasValidMoves(board, tilePool);
+}
+
+/** 僅在無路可走時自動重排（不消耗玩家操作） */
 export function ensurePlayable(board: Board, tilePool: TileTypeId[]): Board {
-  if (findMatches(board).length === 0 && hasValidMoves(board, tilePool)) {
+  if (!isBoardStuck(board, tilePool)) {
     return board;
   }
 
@@ -203,16 +208,12 @@ export function ensurePlayable(board: Board, tilePool: TileTypeId[]): Board {
       }
     }
 
-    if (findMatches(next).length === 0 && hasValidMoves(next, tilePool)) {
+    if (!isBoardStuck(next, tilePool)) {
       return next;
     }
   }
 
   return createBoard(size, tilePool.length, 1);
-}
-
-export function refillBoardSafe(board: Board, tilePool: TileTypeId[]): Board {
-  return ensurePlayable(refillBoard(board, tilePool), tilePool);
 }
 
 export function calcMatchScore(matchCount: number, combo: number): number {
