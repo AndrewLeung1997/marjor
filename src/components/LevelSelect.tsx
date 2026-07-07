@@ -1,4 +1,5 @@
 import { DIFFICULTY_LABELS, LEVELS, formatTime, getLevelsByDifficulty } from '../data/levels';
+import { getColorCountLabel } from '../data/tiles';
 import type { Difficulty, LevelResult } from '../types';
 
 interface LevelSelectProps {
@@ -68,7 +69,7 @@ export function LevelSelect({
                     <Stars count={result.stars} />
                   ) : unlocked ? (
                     <span className="level-card__hint">
-                      {formatTime(level.timeLimit)} · {level.targetScore}分
+                      {getColorCountLabel(level.tileTypeCount)} · {formatTime(level.timeLimit)} · {level.targetScore}分
                     </span>
                   ) : (
                     <span className="level-card__lock">🔒</span>

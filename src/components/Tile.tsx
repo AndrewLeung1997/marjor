@@ -48,7 +48,7 @@ export function Tile({
       onClick={() => onClick({ row, col })}
       onPointerDown={(e) => onPointerDown({ row, col }, e)}
       disabled={disabled}
-      aria-label={bomb ? `${def.name} ${bombLabel} ${bomb.countdown}秒` : `${def.name} 牌`}
+      aria-label={bomb ? `${def.name} ${bombLabel} ${bomb.countdown}秒` : `${def.name}色塊`}
     >
       <div className="tile__motion" style={{ transform: motionTransform }}>
         <TileFace type={type} />

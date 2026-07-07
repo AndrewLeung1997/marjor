@@ -186,7 +186,7 @@ export function GameBoard({
       className="game-board"
       style={{ '--grid-size': size } as CSSProperties}
       role="grid"
-      aria-label="麻雀牌面"
+      aria-label="色塊棋盤"
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerCancel}

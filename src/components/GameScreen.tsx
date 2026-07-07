@@ -53,15 +53,17 @@ export function GameScreen({ levelId, onWin, onBack, onNextLevel }: GameScreenPr
         }}
       />
 
-      <GameBoard
-        board={state.board}
-        bombs={state.bombs}
-        selected={state.selected}
-        lastMatched={state.lastMatched}
-        phase={state.phase}
-        onTileClick={handleTileClick}
-        onSwap={attemptSwap}
-      />
+      <div className="game-board-area">
+        <GameBoard
+          board={state.board}
+          bombs={state.bombs}
+          selected={state.selected}
+          lastMatched={state.lastMatched}
+          phase={state.phase}
+          onTileClick={handleTileClick}
+          onSwap={attemptSwap}
+        />
+      </div>
 
       {showResult && (
         <ResultModal

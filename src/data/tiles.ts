@@ -1,89 +1,41 @@
 import type { TileDef, TileTypeId } from '../types';
 
-const WAN_NAMES = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
-const NUM_NAMES = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
-
-function wanTiles(): TileDef[] {
-  return WAN_NAMES.map((n, i) => ({
-    id: `wan${i + 1}` as TileTypeId,
-    label: `${n}萬`,
-    name: `${n}萬`,
-    color: '#b71c1c',
-    bg: '#ffebee',
-    suit: 'wan' as const,
-  }));
-}
-
-function tongTiles(): TileDef[] {
-  return NUM_NAMES.map((n, i) => ({
-    id: `tong${i + 1}` as TileTypeId,
-    label: `${n}筒`,
-    name: `${n}筒`,
-    color: '#1565c0',
-    bg: '#e3f2fd',
-    suit: 'tong' as const,
-  }));
-}
-
-function suoTiles(): TileDef[] {
-  return NUM_NAMES.map((n, i) => ({
-    id: `suo${i + 1}` as TileTypeId,
-    label: `${n}索`,
-    name: `${n}索`,
-    color: '#2e7d32',
-    bg: '#e8f5e9',
-    suit: 'suo' as const,
-  }));
-}
-
-const HONOR_TILES: TileDef[] = [
-  { id: 'dong', label: '東', name: '東風', color: '#1a1a1a', bg: '#f5f5f5', suit: 'honor' },
-  { id: 'nan', label: '南', name: '南風', color: '#1a1a1a', bg: '#f5f5f5', suit: 'honor' },
-  { id: 'xi', label: '西', name: '西風', color: '#1a1a1a', bg: '#f5f5f5', suit: 'honor' },
-  { id: 'bei', label: '北', name: '北風', color: '#1a1a1a', bg: '#f5f5f5', suit: 'honor' },
-  { id: 'zhong', label: '中', name: '紅中', color: '#c62828', bg: '#ffcdd2', suit: 'honor' },
-  { id: 'fa', label: '發', name: '青發', color: '#00695c', bg: '#e0f2f1', suit: 'honor' },
-  { id: 'bai', label: '白', name: '白板', color: '#546e7a', bg: '#eceff1', suit: 'honor' },
+/** 紅橙黃綠青藍紫黑白 — 依序解鎖 */
+export const COLOR_TILE_ORDER: TileTypeId[] = [
+  'red',
+  'orange',
+  'yellow',
+  'green',
+  'cyan',
+  'blue',
+  'purple',
+  'black',
+  'white',
 ];
 
-export const TILE_TYPES: TileDef[] = [...wanTiles(), ...tongTiles(), ...suoTiles(), ...HONOR_TILES];
+export const TILE_TYPES: TileDef[] = [
+  { id: 'red', label: '紅', name: '紅色', color: '#e53935', bg: '#ef5350', highlight: '#ffcdd2' },
+  { id: 'orange', label: '橙', name: '橙色', color: '#f57c00', bg: '#ff9800', highlight: '#ffe0b2' },
+  { id: 'yellow', label: '黃', name: '黃色', color: '#f9a825', bg: '#ffca28', highlight: '#fff9c4' },
+  { id: 'green', label: '綠', name: '綠色', color: '#2e7d32', bg: '#66bb6a', highlight: '#c8e6c9' },
+  { id: 'cyan', label: '青', name: '青色', color: '#00838f', bg: '#26c6da', highlight: '#b2ebf2' },
+  { id: 'blue', label: '藍', name: '藍色', color: '#1565c0', bg: '#42a5f5', highlight: '#bbdefb' },
+  { id: 'purple', label: '紫', name: '紫色', color: '#6a1b9a', bg: '#ab47bc', highlight: '#e1bee7' },
+  { id: 'black', label: '黑', name: '黑色', color: '#212121', bg: '#424242', highlight: '#757575' },
+  { id: 'white', label: '白', name: '白色', color: '#bdbdbd', bg: '#fafafa', highlight: '#ffffff' },
+];
 
 export const TILE_MAP = Object.fromEntries(TILE_TYPES.map((t) => [t.id, t])) as Record<
   TileTypeId,
   TileDef
 >;
 
-/** 依關卡選出多樣牌型：萬筒索均衡 + 字牌 */
-export function getTilePool(count: number, levelId: number): TileTypeId[] {
-  const wan = TILE_TYPES.filter((t) => t.suit === 'wan').map((t) => t.id);
-  const tong = TILE_TYPES.filter((t) => t.suit === 'tong').map((t) => t.id);
-  const suo = TILE_TYPES.filter((t) => t.suit === 'suo').map((t) => t.id);
-  const honors = TILE_TYPES.filter((t) => t.suit === 'honor').map((t) => t.id);
+/** 依關卡取前 N 種顏色（難度越高顏色越多） */
+export function getTilePool(count: number, _levelId?: number): TileTypeId[] {
+  const n = Math.min(Math.max(3, count), COLOR_TILE_ORDER.length);
+  return COLOR_TILE_ORDER.slice(0, n);
+}
 
-  const pool: TileTypeId[] = [];
-  const offset = (levelId - 1) % 3;
-
-  // 每種花色輪流取牌，確保視覺多樣
-  const perSuit = Math.max(2, Math.floor((count - 2) / 3));
-  for (let i = 0; i < perSuit && pool.length < count - 2; i++) {
-    const idx = (i + offset) % 9;
-    pool.push(wan[idx], tong[idx], suo[idx]);
-  }
-
-  // 加入字牌增加辨識度
-  const honorPick = [honors[(levelId + offset) % 4], honors[4 + (levelId % 3)]];
-  for (const h of honorPick) {
-    if (pool.length < count && !pool.includes(h)) pool.push(h);
-  }
-
-  // 補足到 count
-  const all = [...wan, ...tong, ...suo, ...honors];
-  let cursor = (levelId * 3 + offset) % all.length;
-  while (pool.length < count) {
-    const id = all[cursor % all.length];
-    if (!pool.includes(id)) pool.push(id);
-    cursor++;
-  }
-
-  return pool.slice(0, count);
+export function getColorCountLabel(count: number): string {
+  return `${Math.min(count, COLOR_TILE_ORDER.length)}色`;
 }

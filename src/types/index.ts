@@ -1,10 +1,16 @@
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
+/** 九色順序：隨難度逐步解鎖 */
 export type TileTypeId =
-  | 'wan1' | 'wan2' | 'wan3' | 'wan4' | 'wan5' | 'wan6' | 'wan7' | 'wan8' | 'wan9'
-  | 'tong1' | 'tong2' | 'tong3' | 'tong4' | 'tong5' | 'tong6' | 'tong7' | 'tong8' | 'tong9'
-  | 'suo1' | 'suo2' | 'suo3' | 'suo4' | 'suo5' | 'suo6' | 'suo7' | 'suo8' | 'suo9'
-  | 'dong' | 'nan' | 'xi' | 'bei' | 'zhong' | 'fa' | 'bai';
+  | 'red'
+  | 'orange'
+  | 'yellow'
+  | 'green'
+  | 'cyan'
+  | 'blue'
+  | 'purple'
+  | 'black'
+  | 'white';
 
 /** 炸彈等級：普通 / 緊急 / 危急 */
 export type BombTier = 'normal' | 'fast' | 'critical';
@@ -22,7 +28,7 @@ export interface TileDef {
   name: string;
   color: string;
   bg: string;
-  suit: 'wan' | 'tong' | 'suo' | 'honor';
+  highlight: string;
 }
 
 export interface LevelConfig {

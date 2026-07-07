@@ -1,4 +1,5 @@
-import { TILE_IMAGES } from '../data/tileAssets';
+import type { CSSProperties } from 'react';
+import { TILE_MAP } from '../data/tiles';
 import type { TileTypeId } from '../types';
 
 interface TileFaceProps {
@@ -6,23 +7,28 @@ interface TileFaceProps {
   className?: string;
 }
 
-/** 香港麻雀牌：象牙色牌身 + 傳統牌面圖案 */
+/** 彩色方塊 */
 export function TileFace({ type, className = '' }: TileFaceProps) {
+  const def = TILE_MAP[type];
+
   return (
-    <div className={`mahjong-tile ${className}`.trim()} aria-hidden="true">
-      <div className="mahjong-tile__back" />
-      <div className="mahjong-tile__face">
-        <img
-          src={TILE_IMAGES[type]}
-          alt=""
-          className="mahjong-tile__art"
-          draggable={false}
-        />
-      </div>
+    <div
+      className={`color-tile color-tile--${type} ${className}`.trim()}
+      style={
+        {
+          '--tile-color': def.color,
+          '--tile-bg': def.bg,
+          '--tile-highlight': def.highlight,
+        } as CSSProperties
+      }
+      aria-hidden="true"
+    >
+      <div className="color-tile__body" />
+      <div className="color-tile__shine" />
     </div>
   );
 }
 
 export function TileFaceLarge({ type }: TileFaceProps) {
-  return <TileFace type={type} className="mahjong-tile--large" />;
+  return <TileFace type={type} className="color-tile--large" />;
 }

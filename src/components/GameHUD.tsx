@@ -104,7 +104,7 @@ export function GameHUD({
       </p>
 
       <p className="game-hud__hint">
-        拖曳牌面交換 · 三消帶炸彈的牌可拆除 · 倒數歸零即輸
+        拖曳色塊交換 · 三消帶炸彈的可拆除 · 倒數歸零即輸
       </p>
 
       <button type="button" className="btn btn--secondary btn--shuffle" onClick={onShuffle}>
