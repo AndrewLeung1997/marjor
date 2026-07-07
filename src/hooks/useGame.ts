@@ -1,39 +1,44 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { getBombConfig } from '../data/bombs';
 import { getLevel } from '../data/levels';
 import {
-  applyBombCreates,
   applyGravity,
   areAdjacent,
-  calcBombScore,
+  calcDefuseScore,
   calcMatchScore,
-  chainExplode,
   createBoard,
-  createEmptySpecials,
+  createEmptyBombs,
   findMatchGroups,
-  hasBombAt,
   refillBoard,
   removeAt,
   resolveMatchGroups,
   shuffleBoard,
-  swapSpecials,
+  spawnBomb,
+  swapBombs,
   swapTiles,
+  tickBombs,
   wouldCreateMatch,
 } from '../utils/gameEngine';
+import { getTilePool } from '../data/tiles';
 import type { GamePhase, GameState, LevelConfig, LoseReason, Position } from '../types';
 
 const ANIM_SWAP = 200;
 const ANIM_MATCH = 350;
 const ANIM_FALL = 300;
-const ANIM_EXPLODE = 400;
 
 function initState(level: LevelConfig): GameState {
   const size = level.gridSize;
+  const tilePool = getTilePool(level.tileTypeCount, level.id);
+  const bombConfig = getBombConfig(level.difficulty);
+
   return {
-    board: createBoard(size, level.tileTypeCount),
-    specials: createEmptySpecials(size),
+    board: createBoard(size, level.tileTypeCount, level.id),
+    bombs: createEmptyBombs(size),
+    tilePool,
     score: 0,
     movesLeft: level.moves,
     timeLeft: level.timeLimit,
+    movesUntilSpawn: bombConfig.spawnEveryMoves,
     selected: null,
     phase: 'idle',
     combo: 0,
@@ -43,6 +48,7 @@ function initState(level: LevelConfig): GameState {
 
 export function useGame(levelId: number, onWin: (score: number) => void) {
   const level = getLevel(levelId)!;
+  const bombConfig = getBombConfig(level.difficulty);
   const [state, setState] = useState<GameState>(() => initState(level));
   const processingRef = useRef(false);
   const onWinRef = useRef(onWin);
@@ -57,15 +63,30 @@ export function useGame(levelId: number, onWin: (score: number) => void) {
     reset();
   }, [levelId, reset]);
 
-  // 倒數計時
+  // 關卡計時 + 炸彈倒計時（動畫進行中暫停）
   useEffect(() => {
     const id = setInterval(() => {
       setState((s) => {
         if (s.phase === 'won' || s.phase === 'lost') return s;
+
+        let next = { ...s };
+
+        // 關卡時間
         if (s.timeLeft <= 1) {
-          return { ...s, timeLeft: 0, phase: 'lost', loseReason: 'time' as LoseReason };
+          return { ...next, timeLeft: 0, phase: 'lost', loseReason: 'time' as LoseReason };
         }
-        return { ...s, timeLeft: s.timeLeft - 1 };
+        next = { ...next, timeLeft: s.timeLeft - 1 };
+
+        // 炸彈倒計時（僅 idle 時走秒）
+        if (s.phase === 'idle') {
+          const { bombs, exploded } = tickBombs(s.bombs);
+          next.bombs = bombs;
+          if (exploded) {
+            return { ...next, phase: 'lost', loseReason: 'bomb' as LoseReason };
+          }
+        }
+
+        return next;
       });
     }, 1000);
 
@@ -75,41 +96,43 @@ export function useGame(levelId: number, onWin: (score: number) => void) {
   const settleBoard = useCallback(
     async (
       board: GameState['board'],
-      specials: GameState['specials'],
-      score: number
-    ): Promise<{ board: GameState['board']; specials: GameState['specials']; score: number }> => {
+      bombs: GameState['bombs'],
+      score: number,
+      tilePool: GameState['tilePool']
+    ) => {
       let currentBoard = board;
-      let currentSpecials = specials;
+      let currentBombs = bombs;
       const currentScore = score;
 
       setState((s) => ({ ...s, phase: 'falling' }));
       await delay(100);
 
-      const fallen = applyGravity(currentBoard, currentSpecials);
+      const fallen = applyGravity(currentBoard, currentBombs);
       currentBoard = fallen.board;
-      currentSpecials = fallen.specials;
-      setState((s) => ({ ...s, board: currentBoard, specials: currentSpecials }));
+      currentBombs = fallen.bombs;
+      setState((s) => ({ ...s, board: currentBoard, bombs: currentBombs }));
       await delay(ANIM_FALL);
 
-      currentBoard = refillBoard(currentBoard, level.tileTypeCount);
+      currentBoard = refillBoard(currentBoard, tilePool);
       setState((s) => ({ ...s, board: currentBoard }));
       await delay(ANIM_FALL);
 
-      return { board: currentBoard, specials: currentSpecials, score: currentScore };
+      return { board: currentBoard, bombs: currentBombs, score: currentScore };
     },
-    [level.tileTypeCount]
+    []
   );
 
   const processMatches = useCallback(
     async (
       board: GameState['board'],
-      specials: GameState['specials'],
+      bombs: GameState['bombs'],
       score: number,
       combo: number,
-      movesLeft: number
+      movesLeft: number,
+      tilePool: GameState['tilePool']
     ) => {
       let currentBoard = board;
-      let currentSpecials = specials;
+      let currentBombs = bombs;
       let currentScore = score;
       let currentCombo = combo;
 
@@ -117,67 +140,37 @@ export function useGame(levelId: number, onWin: (score: number) => void) {
         const groups = findMatchGroups(currentBoard);
         if (groups.length === 0) break;
 
-        const bombTriggers = findMatchesWithBombs(currentSpecials, groups);
-        let clearedPositions: Position[] = [];
-
-        if (bombTriggers.length > 0) {
-          setState((s) => ({ ...s, phase: 'exploding' }));
-          const exploded = chainExplode(currentBoard, currentSpecials, bombTriggers);
-          currentBoard = exploded.board;
-          currentSpecials = exploded.specials;
-          clearedPositions = exploded.cleared;
-          currentCombo += 1;
-          currentScore += calcBombScore(clearedPositions.length, currentCombo);
-          setState((s) => ({
-            ...s,
-            board: currentBoard,
-            specials: currentSpecials,
-            lastMatched: clearedPositions,
-            score: currentScore,
-            combo: currentCombo,
-          }));
-          await delay(ANIM_EXPLODE);
-        }
-
-        const remainingGroups = findMatchGroups(currentBoard);
-        if (remainingGroups.length === 0) {
-          if (clearedPositions.length > 0) {
-            const settled = await settleBoard(currentBoard, currentSpecials, currentScore);
-            currentBoard = settled.board;
-            currentSpecials = settled.specials;
-            continue;
-          }
-          break;
-        }
-
-        const { toRemove, bombCreates } = resolveMatchGroups(remainingGroups);
+        const toRemove = resolveMatchGroups(groups);
         currentCombo += 1;
-        currentScore += calcMatchScore(toRemove.length + bombCreates.length, currentCombo);
 
         setState((s) => ({
           ...s,
           phase: 'matching',
-          lastMatched: [...toRemove, ...bombCreates.map((b) => b.pos)],
+          lastMatched: toRemove,
           score: currentScore,
           combo: currentCombo,
         }));
         await delay(ANIM_MATCH);
 
-        const removed = removeAt(currentBoard, currentSpecials, toRemove);
+        const removed = removeAt(currentBoard, currentBombs, toRemove);
         currentBoard = removed.board;
-        currentSpecials = removed.specials;
-        currentSpecials = applyBombCreates(currentBoard, currentSpecials, bombCreates);
+        currentBombs = removed.bombs;
+        currentScore += calcMatchScore(toRemove.length, currentCombo);
+        if (removed.defused > 0) {
+          currentScore += calcDefuseScore(removed.defused);
+        }
 
         setState((s) => ({
           ...s,
           board: currentBoard,
-          specials: currentSpecials,
+          bombs: currentBombs,
+          score: currentScore,
           lastMatched: [],
         }));
 
-        const settled = await settleBoard(currentBoard, currentSpecials, currentScore);
+        const settled = await settleBoard(currentBoard, currentBombs, currentScore, tilePool);
         currentBoard = settled.board;
-        currentSpecials = settled.specials;
+        currentBombs = settled.bombs;
       }
 
       if (currentScore >= level.targetScore) {
@@ -202,7 +195,7 @@ export function useGame(levelId: number, onWin: (score: number) => void) {
       setState((s) => ({
         ...s,
         board: currentBoard,
-        specials: currentSpecials,
+        bombs: currentBombs,
         score: currentScore,
         combo: 0,
         phase: 'idle',
@@ -212,12 +205,63 @@ export function useGame(levelId: number, onWin: (score: number) => void) {
     [level, settleBoard]
   );
 
+  const attemptSwap = useCallback(
+    async (from: Position, to: Position) => {
+      if (processingRef.current || state.phase !== 'idle') return;
+      if (state.timeLeft <= 0) return;
+      if (!areAdjacent(from, to)) return;
+
+      const { board, bombs, score, movesLeft, tilePool, movesUntilSpawn } = state;
+
+      if (!wouldCreateMatch(board, from, to)) {
+        processingRef.current = true;
+        setState((s) => ({ ...s, phase: 'swapping', selected: null }));
+
+        const swapped = swapTiles(board, from, to);
+        const swappedBombs = swapBombs(bombs, from, to);
+        setState((s) => ({ ...s, board: swapped, bombs: swappedBombs }));
+        await delay(ANIM_SWAP);
+
+        setState((s) => ({ ...s, board, bombs, phase: 'idle' }));
+        processingRef.current = false;
+        return;
+      }
+
+      processingRef.current = true;
+      setState((s) => ({ ...s, phase: 'swapping', selected: null }));
+
+      const currentBoard = swapTiles(board, from, to);
+      const currentBombs = swapBombs(bombs, from, to);
+      const newMovesLeft = movesLeft - 1;
+      let nextMovesUntilSpawn = movesUntilSpawn - 1;
+      let nextBombs = currentBombs;
+
+      if (nextMovesUntilSpawn <= 0) {
+        nextBombs = spawnBomb(currentBoard, currentBombs, level.difficulty);
+        nextMovesUntilSpawn = bombConfig.spawnEveryMoves;
+      }
+
+      setState((s) => ({
+        ...s,
+        board: currentBoard,
+        bombs: nextBombs,
+        movesLeft: newMovesLeft,
+        movesUntilSpawn: nextMovesUntilSpawn,
+      }));
+
+      await delay(ANIM_SWAP);
+
+      await processMatches(currentBoard, nextBombs, score, 0, newMovesLeft, tilePool);
+    },
+    [state, processMatches, level.difficulty, bombConfig.spawnEveryMoves]
+  );
+
   const handleTileClick = useCallback(
     async (pos: Position) => {
       if (processingRef.current || state.phase !== 'idle') return;
       if (state.timeLeft <= 0) return;
 
-      const { selected, board, specials, score, movesLeft } = state;
+      const { selected } = state;
 
       if (!selected) {
         setState((s) => ({ ...s, selected: pos }));
@@ -234,109 +278,37 @@ export function useGame(levelId: number, onWin: (score: number) => void) {
         return;
       }
 
-      const bombA = hasBombAt(specials, selected);
-      const bombB = hasBombAt(specials, pos);
-      const isBombSwap = bombA || bombB;
-
-      if (!isBombSwap && !wouldCreateMatch(board, selected, pos)) {
-        setState((s) => ({ ...s, selected: pos }));
-        return;
-      }
-
-      processingRef.current = true;
-      setState((s) => ({ ...s, phase: 'swapping', selected: null }));
-
-      let currentBoard = swapTiles(board, selected, pos);
-      let currentSpecials = swapSpecials(specials, selected, pos);
-      setState((s) => ({
-        ...s,
-        board: currentBoard,
-        specials: currentSpecials,
-        movesLeft: s.movesLeft - 1,
-      }));
-
-      await delay(ANIM_SWAP);
-
-      const newMovesLeft = movesLeft - 1;
-
-      if (isBombSwap) {
-        const triggers: Position[] = [];
-        if (bombA) triggers.push(selected);
-        if (bombB) triggers.push(pos);
-
-        setState((s) => ({ ...s, phase: 'exploding' }));
-        const exploded = chainExplode(currentBoard, currentSpecials, triggers);
-        currentBoard = exploded.board;
-        currentSpecials = exploded.specials;
-        let currentScore = score + calcBombScore(exploded.cleared.length, 1);
-
-        setState((s) => ({
-          ...s,
-          board: currentBoard,
-          specials: currentSpecials,
-          lastMatched: exploded.cleared,
-          score: currentScore,
-          combo: 1,
-        }));
-        await delay(ANIM_EXPLODE);
-
-        const settled = await settleBoard(
-          currentBoard,
-          currentSpecials,
-          currentScore
-        );
-        await processMatches(
-          settled.board,
-          settled.specials,
-          settled.score,
-          1,
-          newMovesLeft
-        );
-        return;
-      }
-
-      await processMatches(currentBoard, currentSpecials, score, 0, newMovesLeft);
+      await attemptSwap(selected, pos);
     },
-    [state, processMatches, settleBoard]
+    [state, attemptSwap]
   );
 
   const shuffle = useCallback(async () => {
     if (processingRef.current || state.phase !== 'idle') return;
     processingRef.current = true;
-    const shuffled = shuffleBoard(state.board, level.tileTypeCount);
+    const shuffled = shuffleBoard(state.board, level.tileTypeCount, level.id);
+    const tilePool = getTilePool(level.tileTypeCount, level.id);
     setState((s) => ({
       ...s,
       board: shuffled,
-      specials: createEmptySpecials(shuffled.length),
+      bombs: createEmptyBombs(shuffled.length),
+      tilePool,
+      movesUntilSpawn: bombConfig.spawnEveryMoves,
       selected: null,
     }));
     await delay(300);
     processingRef.current = false;
-  }, [state.board, state.phase, level.tileTypeCount]);
+  }, [state.board, state.phase, level, bombConfig.spawnEveryMoves]);
 
   return {
     level,
     state,
+    bombConfig,
     handleTileClick,
+    attemptSwap,
     reset,
     shuffle,
   };
-}
-
-function findMatchesWithBombs(
-  specials: GameState['specials'],
-  groups: Position[][]
-): Position[] {
-  const matched = new Set<string>();
-  for (const group of groups) {
-    for (const p of group) matched.add(`${p.row},${p.col}`);
-  }
-  const triggers: Position[] = [];
-  for (const key of matched) {
-    const [row, col] = key.split(',').map(Number);
-    if (specials[row][col]) triggers.push({ row, col });
-  }
-  return triggers;
 }
 
 function delay(ms: number): Promise<void> {
@@ -349,8 +321,6 @@ export function getPhaseLabel(phase: GamePhase): string {
       return '交換中…';
     case 'matching':
       return '消除！';
-    case 'exploding':
-      return '炸彈！';
     case 'falling':
       return '落牌中…';
     case 'won':
@@ -364,6 +334,8 @@ export function getPhaseLabel(phase: GamePhase): string {
 
 export function getLoseMessage(reason?: LoseReason): string {
   switch (reason) {
+    case 'bomb':
+      return '炸彈爆炸！未能及時消除';
     case 'time':
       return '時間到！再試一次吧';
     case 'moves':

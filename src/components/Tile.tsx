@@ -1,48 +1,63 @@
 import type { CSSProperties } from 'react';
-import { getSpecialLabel } from '../utils/gameEngine';
+import { BOMB_TIER_LABELS } from '../data/bombs';
 import { TILE_MAP } from '../data/tiles';
 import { TileFace } from './TileFace';
-import type { Position, SpecialType, TileTypeId } from '../types';
+import type { Position, TimedBomb, TileTypeId } from '../types';
 
 interface TileProps {
   type: TileTypeId;
-  special: SpecialType | null;
+  bomb: TimedBomb | null;
   row: number;
   col: number;
   selected: boolean;
   matched: boolean;
+  isDragging?: boolean;
+  isDragTarget?: boolean;
+  dragOffset?: { x: number; y: number };
   onClick: (pos: Position) => void;
+  onPointerDown: (pos: Position, e: React.PointerEvent) => void;
   disabled: boolean;
 }
 
 export function Tile({
   type,
-  special,
+  bomb,
   row,
   col,
   selected,
   matched,
+  isDragging,
+  isDragTarget,
+  dragOffset,
   onClick,
+  onPointerDown,
   disabled,
 }: TileProps) {
   const def = TILE_MAP[type];
-  const bombLabel = special ? getSpecialLabel(special) : '';
+  const bombLabel = bomb ? BOMB_TIER_LABELS[bomb.tier] : '';
+
+  const motionTransform = dragOffset
+    ? `translate(${dragOffset.x}px, ${dragOffset.y}px)`
+    : undefined;
 
   return (
     <button
       type="button"
-      className={`tile ${selected ? 'tile--selected' : ''} ${matched ? 'tile--matched' : ''} ${special ? `tile--bomb tile--bomb-${special}` : ''}`}
+      className={`tile ${selected ? 'tile--selected' : ''} ${matched ? 'tile--matched' : ''} ${bomb ? `tile--bomb tile--bomb-${bomb.tier}` : ''} ${bomb && bomb.countdown <= 3 ? 'tile--bomb-urgent' : ''} ${isDragging ? 'tile--dragging' : ''} ${isDragTarget ? 'tile--drag-target' : ''}`}
       style={{ '--tile-accent': def.color } as CSSProperties}
       onClick={() => onClick({ row, col })}
+      onPointerDown={(e) => onPointerDown({ row, col }, e)}
       disabled={disabled}
-      aria-label={special ? `${def.name} ${bombLabel}` : `${def.name} 牌`}
+      aria-label={bomb ? `${def.name} ${bombLabel} ${bomb.countdown}秒` : `${def.name} 牌`}
     >
-      <TileFace type={type} />
-      {special && (
-        <span className="tile__bomb-icon" aria-hidden="true">
-          {special === 'bomb-area' ? '💥' : special === 'bomb-row' ? '↔' : '↕'}
-        </span>
-      )}
+      <div className="tile__motion" style={{ transform: motionTransform }}>
+        <TileFace type={type} />
+        {bomb && (
+          <span className="tile__bomb-countdown" aria-hidden="true">
+            {bomb.countdown}
+          </span>
+        )}
+      </div>
     </button>
   );
 }

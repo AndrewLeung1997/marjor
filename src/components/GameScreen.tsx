@@ -24,7 +24,7 @@ export function GameScreen({ levelId, onWin, onBack, onNextLevel }: GameScreenPr
     setShowResult(true);
   };
 
-  const { level, state, handleTileClick, reset, shuffle } = useGame(levelId, handleWin);
+  const { level, state, handleTileClick, attemptSwap, reset, shuffle } = useGame(levelId, handleWin);
 
   useEffect(() => {
     if (state.phase === 'lost' && !showResult) {
@@ -42,6 +42,8 @@ export function GameScreen({ levelId, onWin, onBack, onNextLevel }: GameScreenPr
         movesLeft={state.movesLeft}
         timeLeft={state.timeLeft}
         combo={state.combo}
+        bombs={state.bombs}
+        movesUntilSpawn={state.movesUntilSpawn}
         phaseLabel={getPhaseLabel(state.phase)}
         onBack={onBack}
         onShuffle={shuffle}
@@ -53,11 +55,12 @@ export function GameScreen({ levelId, onWin, onBack, onNextLevel }: GameScreenPr
 
       <GameBoard
         board={state.board}
-        specials={state.specials}
+        bombs={state.bombs}
         selected={state.selected}
         lastMatched={state.lastMatched}
         phase={state.phase}
         onTileClick={handleTileClick}
+        onSwap={attemptSwap}
       />
 
       {showResult && (

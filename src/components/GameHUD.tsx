@@ -1,5 +1,7 @@
+import { countBombs } from '../data/bombs';
 import { calcStars, formatTime } from '../data/levels';
-import type { LevelConfig } from '../types';
+import { getLowestBombCountdown } from '../utils/gameEngine';
+import type { BombBoard, LevelConfig } from '../types';
 
 interface GameHUDProps {
   level: LevelConfig;
@@ -7,6 +9,8 @@ interface GameHUDProps {
   movesLeft: number;
   timeLeft: number;
   combo: number;
+  bombs: BombBoard;
+  movesUntilSpawn: number;
   phaseLabel: string;
   onBack: () => void;
   onShuffle: () => void;
@@ -19,6 +23,8 @@ export function GameHUD({
   movesLeft,
   timeLeft,
   combo,
+  bombs,
+  movesUntilSpawn,
   phaseLabel,
   onBack,
   onShuffle,
@@ -28,6 +34,10 @@ export function GameHUD({
   const stars = calcStars(level, score);
   const timeWarn = timeLeft <= 15;
   const timeCritical = timeLeft <= 5;
+  const bombCount = countBombs(bombs);
+  const nearestBomb = getLowestBombCountdown(bombs);
+  const bombWarn = nearestBomb !== null && nearestBomb <= 5;
+  const bombCritical = nearestBomb !== null && nearestBomb <= 3;
 
   return (
     <div className="game-hud">
@@ -59,6 +69,12 @@ export function GameHUD({
             {movesLeft}
           </span>
         </div>
+        <div className={`stat stat--bomb ${bombWarn ? 'stat--warn' : ''} ${bombCritical ? 'stat--critical' : ''}`}>
+          <span className="stat__label">炸彈</span>
+          <span className="stat__value">
+            {bombCount > 0 ? `${bombCount} · ${nearestBomb}s` : `— · ${movesUntilSpawn}`}
+          </span>
+        </div>
         {combo > 0 && (
           <div className="stat stat--combo">
             <span className="stat__label">連擊</span>
@@ -85,7 +101,7 @@ export function GameHUD({
       {phaseLabel && <p className="game-hud__phase">{phaseLabel}</p>}
 
       <p className="game-hud__hint">
-        四連→排炸彈 · 五連→範圍炸彈 · 點擊炸彈牌交換引爆
+        拖曳牌面交換 · 三消帶炸彈的牌可拆除 · 倒數歸零即輸
       </p>
 
       <button type="button" className="btn btn--secondary btn--shuffle" onClick={onShuffle}>

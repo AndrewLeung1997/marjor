@@ -32,9 +32,9 @@ export default function App() {
         <div className="menu">
           <div className="menu__hero">
             <div className="menu__tiles" aria-hidden="true">
-              <div className="menu-tile"><TileFaceLarge type="wan" /></div>
-              <div className="menu-tile"><TileFaceLarge type="tong" /></div>
-              <div className="menu-tile"><TileFaceLarge type="suo" /></div>
+              <div className="menu-tile"><TileFaceLarge type="wan5" /></div>
+              <div className="menu-tile"><TileFaceLarge type="tong3" /></div>
+              <div className="menu-tile"><TileFaceLarge type="suo7" /></div>
               <div className="menu-tile"><TileFaceLarge type="zhong" /></div>
             </div>
             <h1 className="menu__title">麻雀消消樂</h1>
@@ -61,7 +61,7 @@ export default function App() {
           </div>
 
           <footer className="menu__footer">
-            <p>三消消除 · 四連炸彈 · 限時挑戰</p>
+            <p>拖曳交換牌面 · 限時三消 · 炸彈連鎖</p>
             <p>簡單 · 中等 · 困難 共 15 關</p>
           </footer>
         </div>

@@ -1,11 +1,20 @@
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
-export type TileTypeId = 'wan' | 'tong' | 'suo' | 'dong' | 'zhong' | 'fa';
+export type TileTypeId =
+  | 'wan1' | 'wan2' | 'wan3' | 'wan4' | 'wan5' | 'wan6' | 'wan7' | 'wan8' | 'wan9'
+  | 'tong1' | 'tong2' | 'tong3' | 'tong4' | 'tong5' | 'tong6' | 'tong7' | 'tong8' | 'tong9'
+  | 'suo1' | 'suo2' | 'suo3' | 'suo4' | 'suo5' | 'suo6' | 'suo7' | 'suo8' | 'suo9'
+  | 'dong' | 'nan' | 'xi' | 'bei' | 'zhong' | 'fa' | 'bai';
 
-/** 炸彈類型：橫排、直排、範圍 */
-export type SpecialType = 'bomb-row' | 'bomb-col' | 'bomb-area';
+/** 炸彈等級：普通 / 緊急 / 危急 */
+export type BombTier = 'normal' | 'fast' | 'critical';
 
-export type LoseReason = 'moves' | 'time';
+export interface TimedBomb {
+  tier: BombTier;
+  countdown: number;
+}
+
+export type LoseReason = 'moves' | 'time' | 'bomb';
 
 export interface TileDef {
   id: TileTypeId;
@@ -13,6 +22,7 @@ export interface TileDef {
   name: string;
   color: string;
   bg: string;
+  suit: 'wan' | 'tong' | 'suo' | 'honor';
 }
 
 export interface LevelConfig {
@@ -45,26 +55,27 @@ export interface Position {
 
 export type Board = (TileTypeId | null)[][];
 
-export type SpecialBoard = (SpecialType | null)[][];
+export type BombBoard = (TimedBomb | null)[][];
 
 export type GamePhase =
   | 'idle'
   | 'swapping'
   | 'matching'
   | 'falling'
-  | 'exploding'
   | 'won'
   | 'lost';
 
 export interface GameState {
   board: Board;
-  specials: SpecialBoard;
+  bombs: BombBoard;
   score: number;
   movesLeft: number;
   timeLeft: number;
+  movesUntilSpawn: number;
   selected: Position | null;
   phase: GamePhase;
   combo: number;
   lastMatched: Position[];
   loseReason?: LoseReason;
+  tilePool: TileTypeId[];
 }
