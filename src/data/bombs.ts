@@ -32,6 +32,12 @@ export const BOMB_CONFIG: Record<Difficulty, BombDifficultyConfig> = {
     tiers: ['fast', 'critical'],
     countdown: { normal: 20, fast: 14, critical: 10 },
   },
+  expert: {
+    maxBombs: 3,
+    spawnEveryMoves: 6,
+    tiers: ['fast', 'critical'],
+    countdown: { normal: 18, fast: 12, critical: 8 },
+  },
 };
 
 export function getBombConfig(difficulty: Difficulty): BombDifficultyConfig {

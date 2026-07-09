@@ -1,4 +1,4 @@
-import type { TileDef, TileTypeId } from '../types';
+import type { TileDef, TileShape, TileTypeId } from '../types';
 
 /** 紅綠黃藍紫黑白 — 依序解鎖，高對比配色 */
 export const COLOR_TILE_ORDER: TileTypeId[] = [
@@ -11,11 +11,30 @@ export const COLOR_TILE_ORDER: TileTypeId[] = [
   'white',
 ];
 
+/** 各色對應形狀：正方形、圓形、三角形、鑽石 */
+export const TILE_SHAPES: Record<TileTypeId, TileShape> = {
+  red: 'square',
+  green: 'circle',
+  yellow: 'triangle',
+  blue: 'diamond',
+  purple: 'circle',
+  black: 'square',
+  white: 'diamond',
+};
+
+export const SHAPE_LABELS: Record<TileShape, string> = {
+  square: '正方形',
+  diamond: '鑽石',
+  circle: '圓形',
+  triangle: '三角形',
+};
+
 export const TILE_TYPES: TileDef[] = [
   {
     id: 'red',
     label: '紅',
     name: '紅色',
+    shape: 'square',
     color: '#B71C1C',
     bg: '#E53935',
     highlight: '#FF8A80',
@@ -26,6 +45,7 @@ export const TILE_TYPES: TileDef[] = [
     id: 'green',
     label: '綠',
     name: '綠色',
+    shape: 'circle',
     color: '#1B5E20',
     bg: '#43A047',
     highlight: '#A5D6A7',
@@ -36,6 +56,7 @@ export const TILE_TYPES: TileDef[] = [
     id: 'yellow',
     label: '黃',
     name: '黃色',
+    shape: 'triangle',
     color: '#F9A825',
     bg: '#FFEB3B',
     highlight: '#FFF59D',
@@ -46,6 +67,7 @@ export const TILE_TYPES: TileDef[] = [
     id: 'blue',
     label: '藍',
     name: '藍色',
+    shape: 'diamond',
     color: '#0D47A1',
     bg: '#1E88E5',
     highlight: '#90CAF9',
@@ -56,6 +78,7 @@ export const TILE_TYPES: TileDef[] = [
     id: 'purple',
     label: '紫',
     name: '紫色',
+    shape: 'circle',
     color: '#4A148C',
     bg: '#8E24AA',
     highlight: '#CE93D8',
@@ -66,6 +89,7 @@ export const TILE_TYPES: TileDef[] = [
     id: 'black',
     label: '黑',
     name: '黑色',
+    shape: 'square',
     color: '#111111',
     bg: '#424242',
     highlight: '#757575',
@@ -76,6 +100,7 @@ export const TILE_TYPES: TileDef[] = [
     id: 'white',
     label: '白',
     name: '白色',
+    shape: 'diamond',
     color: '#CFD8DC',
     bg: '#FAFAFA',
     highlight: '#FFFFFF',
@@ -97,4 +122,13 @@ export function getTilePool(count: number, _levelId?: number): TileTypeId[] {
 
 export function getColorCountLabel(count: number): string {
   return `${Math.min(count, COLOR_TILE_ORDER.length)}色`;
+}
+
+export function getShapeCountLabel(tilePool: TileTypeId[]): string {
+  const shapes = new Set(tilePool.map((id) => TILE_MAP[id].shape));
+  return `${shapes.size}形`;
+}
+
+export function getTileShape(type: TileTypeId): TileShape {
+  return TILE_MAP[type].shape;
 }

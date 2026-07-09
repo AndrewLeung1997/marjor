@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { calcStars } from '../data/levels';
 import type { LevelConfig } from '../types';
+
+export type LeaderboardUiState = 'idle' | 'submitting' | 'success' | 'error' | 'need-name';
 
 interface ResultModalProps {
   level: LevelConfig;
@@ -10,6 +13,9 @@ interface ResultModalProps {
   onRetry: () => void;
   onMenu: () => void;
   hasNext: boolean;
+  leaderboardState?: LeaderboardUiState;
+  leaderboardMessage?: string;
+  onSubmitLeaderboard?: (name: string) => void;
 }
 
 function Stars({ count }: { count: number }) {
@@ -37,8 +43,12 @@ export function ResultModal({
   onRetry,
   onMenu,
   hasNext,
+  leaderboardState = 'idle',
+  leaderboardMessage,
+  onSubmitLeaderboard,
 }: ResultModalProps) {
   const stars = won ? calcStars(level, score) : 0;
+  const [draftName, setDraftName] = useState('');
 
   return (
     <div className="modal-overlay" role="dialog" aria-modal="true">
@@ -59,6 +69,40 @@ export function ResultModal({
             </span>
           )}
         </p>
+
+        {won && leaderboardState !== 'idle' && (
+          <div className="result-modal__leaderboard">
+            {leaderboardState === 'submitting' && <p>正在提交排行榜…</p>}
+            {leaderboardState === 'success' && (
+              <p className="result-modal__leaderboard-ok">{leaderboardMessage}</p>
+            )}
+            {leaderboardState === 'error' && (
+              <p className="result-modal__leaderboard-err">{leaderboardMessage ?? '無法連線排行榜'}</p>
+            )}
+            {leaderboardState === 'need-name' && onSubmitLeaderboard && (
+              <div className="result-modal__name-form">
+                <p>輸入暱稱以登上線上排行榜</p>
+                <div className="result-modal__name-row">
+                  <input
+                    className="leaderboard__input"
+                    value={draftName}
+                    maxLength={16}
+                    placeholder="2–16 字"
+                    onChange={(e) => setDraftName(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn--secondary"
+                    disabled={draftName.trim().length < 2}
+                    onClick={() => onSubmitLeaderboard(draftName.trim())}
+                  >
+                    提交
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="result-modal__actions">
           {won && hasNext && onNext && (

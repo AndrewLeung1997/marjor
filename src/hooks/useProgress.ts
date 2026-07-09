@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { calcStars, getLevel } from '../data/levels';
+import { calcStars, getLevel, LEVELS } from '../data/levels';
 import type { GameProgress } from '../types';
 
 const STORAGE_KEY = 'mahjong-crush-progress';
@@ -57,7 +57,7 @@ export function useProgress() {
 
       const nextUnlocked = new Set(prev.unlockedLevels);
       nextUnlocked.add(levelId);
-      if (levelId < 15) nextUnlocked.add(levelId + 1);
+      if (levelId < LEVELS.length) nextUnlocked.add(levelId + 1);
 
       return {
         unlockedLevels: Array.from(nextUnlocked).sort((a, b) => a - b),

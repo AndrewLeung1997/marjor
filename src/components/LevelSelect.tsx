@@ -1,5 +1,5 @@
 import { DIFFICULTY_LABELS, LEVELS, formatTime, getLevelsByDifficulty } from '../data/levels';
-import { getColorCountLabel } from '../data/tiles';
+import { getColorCountLabel, getShapeCountLabel, getTilePool } from '../data/tiles';
 import type { Difficulty, LevelResult } from '../types';
 
 interface LevelSelectProps {
@@ -29,7 +29,7 @@ export function LevelSelect({
   onBack,
   completedCount,
 }: LevelSelectProps) {
-  const difficulties: Difficulty[] = ['easy', 'medium', 'hard'];
+  const difficulties: Difficulty[] = ['easy', 'medium', 'hard', 'expert'];
 
   return (
     <div className="level-select">
@@ -69,7 +69,9 @@ export function LevelSelect({
                     <Stars count={result.stars} />
                   ) : unlocked ? (
                     <span className="level-card__hint">
-                      {getColorCountLabel(level.tileTypeCount)} · {formatTime(level.timeLimit)} · {level.targetScore}分
+                      {getColorCountLabel(level.tileTypeCount)} ·{' '}
+                      {getShapeCountLabel(getTilePool(level.tileTypeCount, level.id))} ·{' '}
+                      {formatTime(level.timeLimit)} · {level.targetScore}分
                     </span>
                   ) : (
                     <span className="level-card__lock">🔒</span>

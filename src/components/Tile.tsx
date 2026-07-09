@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { BOMB_TIER_LABELS } from '../data/bombs';
-import { TILE_MAP } from '../data/tiles';
+import { TILE_MAP, SHAPE_LABELS } from '../data/tiles';
 import { TileFace } from './TileFace';
 import type { Position, TimedBomb, TileTypeId } from '../types';
 
@@ -48,7 +48,11 @@ export function Tile({
       onClick={() => onClick({ row, col })}
       onPointerDown={(e) => onPointerDown({ row, col }, e)}
       disabled={disabled}
-      aria-label={bomb ? `${def.name} ${bombLabel} ${bomb.countdown}秒` : `${def.name}色塊`}
+      aria-label={
+        bomb
+          ? `${def.name}${SHAPE_LABELS[def.shape]} ${bombLabel} ${bomb.countdown}秒`
+          : `${def.name}${SHAPE_LABELS[def.shape]}`
+      }
     >
       <div className="tile__motion" style={{ transform: motionTransform }}>
         <TileFace type={type} />

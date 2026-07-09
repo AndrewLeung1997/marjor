@@ -7,13 +7,13 @@ interface TileFaceProps {
   className?: string;
 }
 
-/** 正方形立體磚塊 */
+/** 立體彩色磚塊（正方形 / 鑽石 / 圓形 / 三角形） */
 export function TileFace({ type, className = '' }: TileFaceProps) {
   const def = TILE_MAP[type];
 
   return (
     <div
-      className={`color-tile color-tile--${type} ${className}`.trim()}
+      className={`color-tile color-tile--${type} color-tile--shape-${def.shape} ${className}`.trim()}
       style={
         {
           '--tile-color': def.color,

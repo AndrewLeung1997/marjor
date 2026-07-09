@@ -1,4 +1,7 @@
-export type Difficulty = 'easy' | 'medium' | 'hard';
+export type Difficulty = 'easy' | 'medium' | 'hard' | 'expert';
+
+/** 磚塊形狀 */
+export type TileShape = 'square' | 'diamond' | 'circle' | 'triangle';
 
 /** 七色順序：紅綠黃藍紫黑白，隨難度逐步解鎖 */
 export type TileTypeId =
@@ -24,6 +27,7 @@ export interface TileDef {
   id: TileTypeId;
   label: string;
   name: string;
+  shape: TileShape;
   color: string;
   bg: string;
   highlight: string;

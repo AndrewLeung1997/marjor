@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { GameScreen } from './components/GameScreen';
+import { LeaderboardScreen } from './components/LeaderboardScreen';
 import { LevelSelect } from './components/LevelSelect';
 import { TileFaceLarge } from './components/TileFace';
 import { useProgress } from './hooks/useProgress';
 import { LEVELS } from './data/levels';
 
-type Screen = 'menu' | 'levels' | 'game';
+type Screen = 'menu' | 'levels' | 'game' | 'leaderboard';
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('menu');
@@ -38,7 +39,7 @@ export default function App() {
               <div className="menu-tile"><TileFaceLarge type="blue" /></div>
             </div>
             <h1 className="menu__title">色彩消消樂</h1>
-            <p className="menu__subtitle">七色三消 · 紅綠黃藍紫黑白</p>
+            <p className="menu__subtitle">32 關 · 四種難度 · 方鑽圓三角</p>
           </div>
 
           <div className="menu__stats">
@@ -53,6 +54,13 @@ export default function App() {
             >
               開始遊戲
             </button>
+            <button
+              type="button"
+              className="btn btn--secondary btn--large"
+              onClick={() => setScreen('leaderboard')}
+            >
+              線上排行榜
+            </button>
             {completedCount > 0 && (
               <button type="button" className="btn btn--ghost" onClick={resetProgress}>
                 重置進度
@@ -64,6 +72,14 @@ export default function App() {
             <p>拖曳交換色塊 · 限時三消 · 倒數炸彈</p>
           </footer>
         </div>
+      </div>
+    );
+  }
+
+  if (screen === 'leaderboard') {
+    return (
+      <div className="app">
+        <LeaderboardScreen onBack={() => setScreen('menu')} />
       </div>
     );
   }
